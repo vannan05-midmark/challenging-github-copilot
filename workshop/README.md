@@ -21,6 +21,19 @@ a SQLite3 database and executes complex queries on it. Here are some features:
 1. All dependencies and libraries are pre-installed
 
 
+### 0. Setup the environment
+
+Although everything should be ready to go, run the setup script so that the
+database is populated.
+
+```
+python setup.py
+```
+
+The command should end up with no output if all works out. This poulates the
+database for this workshop.
+
+
 ### 1. Explore the project using agents
 
 Use the `@workspace` agent to explain what is going on with this project.
