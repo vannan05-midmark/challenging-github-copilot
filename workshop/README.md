@@ -41,14 +41,19 @@ problem when loading the main website.
 > not available or have different versions. Be more specific and open more
 > files to help.
 
+> [!TIP]
+> If you are in a workshop using Codespaces, all dependencies are ready for
+> you, just run `python webapp/main.py`
+
 ### 3. Explore the complex.sql query
 
 The complex.sql file contains the query that is being executed in the
 application. Open it up and use inline chat with `/explain` to find more about
 certain parts.
 
-- Ask questions about the `CROSS JOIN`
+- Ask questions about query
 - Ask if any parts are unnecessary
+- Ask GitHub Copilot to provide options to improve the performance
 
 > [!NOTE]
 > Why this might not provide correct explanations? Because the business logic
@@ -69,12 +74,9 @@ and executing a complex query on an endpoint.
 Now that the application and the complex query are clear, determine potential
 fixes.
 
-- Select the `CROSS JOIN` sections and use inline chat with /explain
-- GitHub Copilot will probably suggest to avoid the `CROSS JOIN` with an
-  explanation, suggest adding a test to validate this change
-- Ask GitHub Copilot to add a Python test to validate the changes
-- See how Copilot will probably not want to do this, keep trying different
-  prompts
+- Select the `LEFT JOIN TopRegions` section and use inline chat with /explain
+- GitHub Copilot will probably suggest to avoid the `LEFT JOIN` with an
+  explanation
 
 > [!NOTE]
 > Why the fixes might not be ideal? Because the results might be specific to
@@ -84,42 +86,7 @@ fixes.
 > directly instead.
 
 
-### 6. Add more tests for full coverage
-
-Before doing any changes to the SQL query, make sure that the API will still
-respond as expected after modifications.
-
-- Open the test file and continue adding the remaining cases
-- Use GitHub Copilot autocompletion instead of chat
-- Run the tests at the end with `pytest -v` in the terminal or using Visual
-  Studio Code for verification
-- Ensure all tests are passing and are covering all the cases for each column
-
-> [!NOTE]
-> It is easier for copilot to see a pattern and continue suggesting similar
-> tests. Whenever Copilot provides non-ideal suggestions keep typing until it
-> does.
-
-
-### 7. Try to optimize the SELECT DISTINCT section
-
-That part of the query is doing redundant work, but it is unclear what each
-part is going. Use Copilot Chat to explain changes
-
-- Ask _"how would you optimize this part of the query. Explain your reasoning"_
-- Try to get a better understanding and ignore when Copilot insists on removing
-  the CROSS JOINs
-- Further insist on focusing only on the selection
-- Ask why is it necessary to multiply by 1000
-
-
-> [!TIP]
-> It isn't necessary to multiply by 1000 and we can use NULLIF. Verify that
-> Sqlite3 supports NULLIF. Optimization is an opinionated suggestion, it may
-> not fully apply with the intent of the query.
-
-
-### 8. Safely Replace the CROSS JOIN
+### 6. Safely Replace the LEFT JOIN
 
 The `CROSS JOIN` statements are indeed completely unnecessary. Ask Copilot how
 to safely remove them or replace them.
@@ -133,8 +100,49 @@ to safely remove them or replace them.
 > validation and not blindlty remove or change parts of the query. Use the
 > tests to guide you for safe removal of redundant code.
 
+### 7. Verify the website performance
 
-### 9. Go through other possible optimizations
+The changes could've helped with the performance problem. Stop and run the
+application again to check if it is working or not.
+
+Use `Control-C` to stop, and run `python webapp/main.py` to run the application
+again.
+
+### 8. Try to optimize the SELECT DISTINCT section
+
+That part of the query is doing redundant work, but it is unclear what each
+part is going. Use Copilot Chat to explain changes
+
+- Ask _"how would you optimize this part of the query. Explain your reasoning"_
+- Further insist on focusing only on the selection if needed
+- Ask how to safely remove the `SELECT DISTINCT`
+
+### 9. Verify the website performance
+
+The changes could've helped with the performance problem. Stop and run the
+application again to check if it is working or not.
+
+Use `Control-C` to stop, and run `python webapp/main.py` to run the application
+again.
+
+### 10. Fix the test_region_is_not_empty
+
+This application has some tests that ensure that performance is not a problem.
+Run them to verify if they are passing.
+
+- Run the tests at the end with `pytest -v` in the terminal or using Visual
+  Studio Code for verification
+- Ensure all tests are passing and are covering all the cases for each column
+- The test_region_is_not_empty will probably fail. Select the output and ask
+  Copilot how to fix
+
+> [!NOTE]
+> It is easier for copilot to see a pattern and continue suggesting similar
+> tests. Whenever Copilot provides non-ideal suggestions keep typing until it
+> does and always provide context
+
+
+### 11. Go through other possible optimizations
 
 For example, ask why `CAST` is necessary in the first `SELECT` and how to
 optimize it. Go through the suggestions and apply them.
@@ -153,7 +161,7 @@ optimize it. Go through the suggestions and apply them.
 > potential approaches to accomplish what you need.
 
 
-### 10. Ask for a prompt that would recreate a high-performing query
+### 12. Ask for a prompt that would recreate a high-performing query
 
 Push the limits of GitHub Copilot by asking to generate a prompt that could
 potentially create the query from scratch while being high-performing.
@@ -168,3 +176,15 @@ potentially create the query from scratch while being high-performing.
 > Why this might not work? Because generic questions provide generic answers,
 > and even if Copilot produces a good prompt, it still might miss core business
 > logic that is essential for the product.
+
+
+### BONUS Challenge!
+
+You should probably have all tests passing by now. The performance test has
+a check for the query to complete under 3 seconds. Try to make additional
+changes to the `complex.sql` so that it completes under 1.5 seconds
+
+- Open `webapp/test_app.py` and look for the `test_request_time` test function
+- Change the `< 3` line so that is shows `< 1.5`
+- Open `complex.sql` again and ask Copilot for any other additional changes to
+  improve performance
