@@ -11,12 +11,15 @@ RollingAvg AS (
         AVG(rating) OVER (PARTITION BY region, variety ORDER BY wine_year ROWS BETWEEN 600 PRECEDING AND CURRENT ROW) AS rolling_avg_rating
     FROM WinePerformance
 ),
--- Limited subset of regions instead of all regions
 TopRegions AS (
-    SELECT DISTINCT region
-    FROM WinePerformance
-    ORDER BY region
-    LIMIT 15
+    SELECT region
+    FROM (
+        SELECT region, COUNT(*) AS wine_count
+        FROM WinePerformance
+        GROUP BY region
+        ORDER BY wine_count DESC
+        LIMIT 15
+    ) tr
 )
 SELECT
     wp.name, wp.region, wp.variety, wp.wine_year, wp.rating, ra.rolling_avg_rating,
@@ -34,6 +37,6 @@ SELECT
 FROM WinePerformance wp
 JOIN RollingAvg ra
     ON wp.region = ra.region AND wp.variety = ra.variety AND wp.wine_year = ra.wine_year
-LEFT JOIN TopRegions tr ON (wp.rating > 50)
+WHERE wp.region IN (SELECT region FROM TopRegions) AND wp.rating > 50
 ORDER BY wp.region, wp.variety, wp.wine_year DESC, LENGTH(wp.name) DESC
 LIMIT 50;
